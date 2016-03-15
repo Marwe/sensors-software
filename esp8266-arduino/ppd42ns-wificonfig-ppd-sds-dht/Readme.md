@@ -33,7 +33,7 @@ ESP8266 für Arduino <http://arduino.esp8266.com/stable/package_esp8266com_index
 Verwendete Bibliotheken:  
   
 DHT <https://github.com/adafruit/DHT-sensor-library>  
-(DHT.cpp und DHT.h downloaden und in das Softwareverzeichnis kopieren)  
+(DHT.cpp und DHT.h downloaden und in das Softwareverzeichnis kopieren) besser (schreibt Martin): DHT via Arduino Libraries installieren (Sketch-include library-manage libraries: "dht" suchen, "DHT sensor library") und #include "DHT.h" durch #include <DHT.h> ersetzen, dann dürfen aber keine lokalen Kopien existieren, sonst verschluckt sich die IDE, weil Kompilieren der lokalen DHT.cpp der Fehler *multiple definition of DHT::DHT* auftritt (Definition in systemweiter lib).
 SoftwareSerial <https://github.com/plerup/espsoftwareserial>  
 WifiManager <https://github.com/tzapu/WiFiManager>  
   
