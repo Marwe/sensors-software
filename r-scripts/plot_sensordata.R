@@ -68,10 +68,14 @@ if(usearchive){
     arcdat$timestampct<-as.POSIXct(strptime(arcdat$timestamp,format="%Y-%m-%dT%H:%M:%OS"))
     arctbl<-table(arcdat$sensor_id,as.Date(arcdat$timestamp))#$yday+1000*(as.POSIXlt(arcdat$timestamp)$year+1990))
     save(arcdat, arctbl ,file=arcdat_filename)
-    pdf(file.path(plotdir,"plots_sensordata_overview.pdf"),width=12,height=9)
-    ggplot(as.data.frame(arctbl), aes(Var2,Var1,size=Freq)) + geom_point()+
+    pdf(file.path(plotdir,"plots_sensordata_overview.pdf"),width=15,height=9)
+    arctbl.df<-as.data.frame(arctbl)
+    arctbl.df$Var2<-as.Date(arctbl.df$Var2)
+    p<-ggplot(arctbl.df, aes(Var2,Var1,size=Freq)) + geom_point()+
         labs(x="year, doy", y="sensor id")+
-        theme(axis.text.x  = element_text(angle=90, vjust=0.5, size=6))
+        theme(axis.text.x  = element_text(angle=90, vjust=0.5, size=6))+
+        scale_x_date(date_labels = "%b %d %Y", date_minor_breaks = "1 day", date_breaks = "1 week")
+    print(p)
     dev.off()
     
 # iterate sensors
