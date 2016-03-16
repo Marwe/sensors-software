@@ -1,3 +1,5 @@
+#ifdef MQTTFUNCTIONS_H
+#define MQTTFUNCTIONS_H
 #ifdef PUSHTO_MQTT
 #ifdef WIRELESS_ACTIVE
 // connect/push to an MQTT server
@@ -76,6 +78,11 @@ void mqtt_publish_subtopic(const char* subtopic, String payload) {
     mqtt_publish_subtopic(subtopic, payload.c_str());
 }
 
+void mqtt_parse_config_msg(byte* payload){
+    //TODO: implement
+    
+}
+
 void mqttcallback(char* topic, byte* payload, unsigned int length) {
   Serial.print("mqttcallback: message arrived [");
   Serial.print(topic);
@@ -86,6 +93,7 @@ void mqttcallback(char* topic, byte* payload, unsigned int length) {
   // acknowledge reception
   psclient.publish(logtopic.c_str(), "received incoming msg");
   //TODO: analyse message here (not yet used)
+  mqtt_parse_config_msg(payload);
 }
 
 
@@ -133,8 +141,6 @@ void mqtt_setup() {
   mqtt_subscribetosubtopic(mqttintopic);
 }
 
-
-// endif WIRELESS_ACTIVE
-#endif
-// endif PUSHTO_MQTT
-#endif
+#endif // WIRELESS_ACTIVE
+#endif // PUSHTO_MQTT
+#endif // MQTTFUNCTIONS_H

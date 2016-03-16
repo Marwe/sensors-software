@@ -7,11 +7,13 @@
 // git tag 0.2.4814a5d // set tag
 // git describe --tags // get tag
 // set version in softwareversion.h
-#ifndef SOFTWARE_VERSION_INITIALS
-#define SOFTWARE_VERSION_INITIALS "MULTISENS"
-#endif
-#define SOFTWARE_VERSION_NUMBER "0.6"
+// #ifndef SOFTWARE_VERSION_INITIALS
+// #define SOFTWARE_VERSION_INITIALS "MULTISENS"
+// #endif
+// #define SOFTWARE_VERSION_NUMBER "0.6"
+String software_version="0.7"; // only the numeric part here
 // changelog 
+// 0.7 config via variables instead of #define
 // 0.6: MQTT loop (process incoming/ping)
 // 0.5: MQTT implemented, 
 //      counter restarts after sending to APIs

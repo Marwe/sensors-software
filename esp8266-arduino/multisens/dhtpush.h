@@ -5,15 +5,14 @@
 
 // define defaults, if not already done
 // change the following in sensorconfig.h
-#ifndef DHTPIN
-#define DHTPIN 4 // = GPIO PIN, not D
-#endif
+// #ifndef DHTPIN
+// #define DHTPIN 4 // = GPIO PIN, not D
+// #endif
 #ifndef DHTTYPE
 #define DHTTYPE DHT22
 #endif
 
-
-DHT dht(DHTPIN, DHTTYPE);
+DHT dht(dht_pin, DHTTYPE);
 
 String dht_s_temperature;
 String dht_s_humidity;
@@ -31,13 +30,19 @@ String dht_s_hic;
 /**********************************************/
 /* DHT22 Sensor
 /**********************************************/
+
+dht_init(unsigned int pin){
+    dht.begin(); // Start DHT
+    delay(10);
+}
+
 void sensorDHT(){
   String data;
   float h = dht.readHumidity(); //Read Humidity
   float t = dht.readTemperature(); //Read Temperature
   // Check if valid number if non NaN (not a number) will be send.
   if (isnan(t) || isnan(h)) {
-    Serial.println("DHT22 could not be read");
+    debug_("DHT22 could not be read");
 #ifdef PUSHTO_MQTT
     mqtt_publish_topic(logtopic.c_str(),"DHT22 error: could not be read");
 #endif

@@ -10,13 +10,17 @@
 /* configure your sensors,                    */
 /* PINs and WIFI in sensorconfig.h            */
 /**********************************************/
-#include "sensorconfig.h"
+#include "sensorconfigvar.h" // config with variables
+#include "sensorconfigdefs.h" // config with defines, will be superseeded by sensorconfigvar.h
+
+#include "serialfunctions.h"
 
 #ifdef WIRELESS_ACTIVE
 #include <ESP8266WiFi.h>
 #endif
+unsigned long starttime;
 int value = 0;
-String software_version_s=String(SOFTWARE_VERSION_INITIALS)+"_"+String(SOFTWARE_VERSION_NUMBER);
+// String software_version_s=String(SOFTWARE_VERSION_INITIALS)+"_"+String(SOFTWARE_VERSION_NUMBER);
 #include "apifunctions.h"
 
 /**********************************************/
@@ -55,45 +59,13 @@ String software_version_s=String(SOFTWARE_VERSION_INITIALS)+"_"+String(SOFTWARE_
 /* WiFi declarations: see sensorconfig.h      */
 /**********************************************/
 
-/**********************************************/
-/* Variable Definitions for PPD24NS           */
-/**********************************************/
-#ifndef PPD42_P1_PIN
-#define  PPD42_P1_PIN 12
+
+/**********************************************************/
+/* Variable Definitions for PPD24NS moved to ppdfunctions */
+/**********************************************************/
+#ifdef PPD_ACTIVE
+#include "ppdfunctions.h"
 #endif
-
-#ifndef PPD42_P2_PIN
-#define  PPD42_P2_PIN 14
-#endif
-
-// P1 for PM10 & P2 for PM25
-boolean valP1 = HIGH;
-boolean valP2 = HIGH;
-
-unsigned long starttime;
-unsigned long durationP1;
-unsigned long durationP2;
-
-boolean trigP1 = false;
-boolean trigP2 = false;
-unsigned long trigOnP1;
-unsigned long trigOnP2;
-
-unsigned long lowpulseoccupancyP1 = 0;
-unsigned long lowpulseoccupancyP2 = 0;
-
-float ratio_p1 = 0;
-float concentration_p1 = 0;
-float ratio_p2 = 0;
-float concentration_p2 = 0;
-// String versions (convert only once)
-String ratio_p1s;
-String ratio_p2s;
-String concentration_p1s;
-String concentration_p2s;
-String lowpulseoccupancyP1s;
-String lowpulseoccupancyP2s;
-
 
 #ifdef PIN_LED_STATUS
 int ledsstate=LOW;
@@ -115,44 +87,24 @@ ledsstate=HIGH;
 digitalWrite(PIN_LED_STATUS, ledsstate);
 #endif
 
-  Serial.begin(9600); //Output to Serial at 9600 baud
-  delay(10);
-  Serial.print("Software version: ");
-  Serial.print(software_version_s);
+  init_serial(9600);
+  if(send2csv){debug=false;}
+  debugout_serial(system_info());
+  debugout_serial(config_info());
 
-  Serial.println("ESP startup, chipid:");
-  Serial.println(ESP.getChipId());
-  Serial.print("Heap free:");
-  Serial.println(ESP.getFreeHeap());
-  Serial.print("sampletime [s]:");
-  Serial.println(Float2String(sampletime_ms/1000.0));
-  int i;
-  Serial.println("GPIOx Dx PIN matching");
-
-  for (i = 0; i < 13; i = i + 1) {
-        Serial.print(i);
-        Serial.print("\t");
-        Serial.println(D[i]);
-    }
 
 #ifdef PPD_ACTIVE
 #ifdef PIN_LED_STATUS
 ledsstate=LOW;
 digitalWrite(PIN_LED_STATUS, ledsstate);
 #endif
-  pinMode(PPD42_P1_PIN,INPUT); // Listen at the designated PIN
-  pinMode(PPD42_P2_PIN,INPUT); //Listen at the designated PIN
-  Serial.println("Sensortype PPD active");
-  Serial.print("PPD42_P1_PIN: ");
-  Serial.print(PPD42_P1_PIN);
-  Serial.print("PPD42_P2_PIN: ");
-  Serial.print(PPD42_P2_PIN);
+ppd_init(pin_ppd_p1, pin_ppd_p2);
 #ifdef PIN_LED_STATUS
 ledsstate=HIGH;
 digitalWrite(PIN_LED_STATUS, ledsstate);
 #endif
 #endif
-  
+
 #ifdef DHT_ACTIVE
 #ifdef PIN_LED_STATUS
 ledsstate=LOW;
@@ -162,8 +114,6 @@ digitalWrite(PIN_LED_STATUS, ledsstate);
   Serial.print("DHTPIN: ");
   Serial.println(DHTPIN);
   Serial.println("init DHT");
-  dht.begin(); // Start DHT
-  delay(10);
 #ifdef PIN_LED_STATUS
 ledsstate=HIGH;
 digitalWrite(PIN_LED_STATUS, ledsstate);
@@ -327,6 +277,7 @@ void loop() {
   // Resetting for next sampling
   lowpulseoccupancyP1 = 0;
   lowpulseoccupancyP2 = 0;
+  yield(); // Do (almost) nothing -- yield to allow ESP8266 background functions
   // reset start time at the very end
   starttime = millis(); // store the start time
   }
